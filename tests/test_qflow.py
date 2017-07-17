@@ -3,13 +3,13 @@
 
 """Tests for `qflow` package."""
 
-
 import unittest
+import glob
 import os
 import shutil
 from ship.tuflow import FILEPART_TYPES as fpt
 
-from qflow import tasks, utils
+from qflow import tasks, utils, workflow
 
 def _data_dir():
     # Setup commonly used paths
@@ -94,10 +94,21 @@ class TestQflowTasks(QFlowTestCase):
 
     def test_run_tuflow(self):
         """Test the run tuflow task successfully mocks running"""
-        # Mock out send_Event
+        # Mock out send_event as it requires the message broker to be
+        # running
         tasks.Tuflow.send_event = lambda *args, **kwargs: kwargs
 
         data_copy = os.path.join(self._output, 'data')
         shutil.copytree(self._data_dir, data_copy)
         tcf_file = os.path.join(data_copy, 'M01_5m_001.tcf')
         tasks.run_tuflow(tcf_file, 'tuflow_exe', mock=True, runtime=2, interval=0.5)
+
+    def test_run_all(self):
+        """Test end-to-end: extract model and run all"""
+        tasks.Tuflow.send_event = lambda *args, **kwargs: print(kwargs)
+        data_copy = os.path.join(self._output, 'data')
+        shutil.copytree(self._data_dir, data_copy)
+
+        tcf_list = glob.glob(os.path.join(data_copy, '*.tcf'))
+
+        result = workflow.run_multiple(tcf_list, 'test', mock=True, runtime=0.5, interval=0.1)()

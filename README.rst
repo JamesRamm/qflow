@@ -22,7 +22,6 @@ Quick start
 -----------
 
 - Setup the message broker for celery (e.g. RabbitMQ)
-- Launch the celery server: ``python -m qflow.qflow``
 - Launch 1 or more celery workers: ``celery -A qflow worker -l info`` (run this in the directory above the qflow package)
 
 You can now use the tasks in your python application.

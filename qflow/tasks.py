@@ -33,8 +33,8 @@ class Tuflow(Task):
             tflow_exe: str,
             run_number: int=0,
             mock: bool=False,
-            runtime: int=60,
-            interval: int=5):
+            runtime: int=2,
+            interval: float=0.5):
         '''Run tuflow for a single control file
         '''
         formatter = utils.ModelFormatter(tcf_file, run_number)
@@ -131,12 +131,3 @@ def validate_model(self, tcf_file: str, run_number: int=0):
 @app.task(bind=True, base=Tuflow)
 def run_tuflow(self, *args, **kwargs):
     super(self.__class__, self).run(*args, **kwargs)
-
-
-@app.task(bind=True)
-def dmap(iterable, callback):
-    '''
-    Map a callback over an iterable and return as a group
-    '''
-    callback = subtask(callback)
-    return group(callback.clone([arg, ]) for arg in iterable)()
