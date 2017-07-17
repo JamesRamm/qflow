@@ -1,0 +1,41 @@
+!*********************************************************************************************************
+! This tutorial model is documented at http://wiki.tuflow.com/
+! Any comments or feedback, please email support@tuflow.com
+!*********************************************************************************************************
+! The .tcf file defines the model simulation parameters and directs input from other data sources.
+!*********************************************************************************************************
+!_________________________________________________________________________________________________________
+! MODEL INITIALISATION COMMANDS
+Tutorial Model == ON								! This command is needed to tell TUFLOW that the tutorial model is being run
+GIS Format == SHP									! Specify SHP as the output format for all GIS files. This is the default setting
+SHP Projection == no\exist\projection.prj 		! This command sets the GIS projection for the TUFLOW Model
+! Write Empty GIS Files == model\gis\empty | SHP	! This command is commented out for this run as it is no longer needed
+
+!_________________________________________________________________________________________________________
+! MODEL INPUTS
+Geometry Control File == model\M04_5m_001.tgc	! Reference the TUFLOW Geometry Control File
+BC Control File == model\M04_5m_001.tbc			! Reference the TUFLOW Boundary Conditions Control File
+ESTRY Control File == model\M04_1d_001.ecf		! Reference the ESTRY Control File
+BC Database == bc_dbase\bc_dbase_M04.csv			! Reference the Boundary Conditions Database
+Read Materials File == model\materials.csv		! Reference the Materials Definition File
+
+!__________________________________________________________________________________________________________
+! INITIAL WATER LEVELS
+Set IWL == 36.5	! Define an initial 2D water level of 36.5m
+
+!__________________________________________________________________________________________________________
+! SIMULATION TIME CONTROL COMMANDS
+Timestep == 1.5  ! Specifies a 2D computational timestep of 1.5 seconds
+Start Time == 0  ! Specifies a simulation start time of 0 hours
+End Time == 3    ! Specifies a simulation end time of 3 hours
+
+!__________________________________________________________________________________________________________
+! OUTPUT CONTROL AND FORMAT COMMANDS
+Log Folder == log								! Redirects log output files (eg. .tlf and _messages.mif files) to the folder 'log'
+Output Folder == ..\results\M04\2d				! Specifies the location of the 2D output files
+Write Check Files == ..\check\2d\				! Specifies the location of the 2D check files and prefixes them with the .tcf filename
+Map Output Data Types == h V q d MB1 MB2		! Output water levels, velocities, unit flows, depths and mass balance map output types
+Start Map Output == 0							! Starts writing the map output from 0 hours
+Map Output Interval == 300						! Outputs SMS map data every 300 seconds (5 minutes)
+Store Maximums and Minimums == ON MAXIMUMS ONLY	! Test for maximum (peak) values every timestep and add to SMS map output .dat files
+Screen/Log Display Interval == 40				! This command sets the frequency in which the output is displayed to the computer screen and the log (tlf) file

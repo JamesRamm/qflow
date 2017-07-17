@@ -1,0 +1,4 @@
+Name,Source,Column 1,Column 2,Add Col 1,Mult Col 2,Add Col 2,Column 3,Column 4,Comments
+FC01,100yr2hr.csv,inflow_time_hr,inflow_FC01,,,,,,Applies a flow time boundary from source file '100yr2hr.csv' to the GIS object named 'FC01'
+FC04,100yr2hr.csv,inflow_time_hr,inflow_FC04,,,,,,Applies a flow time boundary from source file '100yr2hr.csv' to the GIS object named 'FC02'
+pump,M14_pump_rates.csv,head,flow,,,,,,Applies a flow-head relationship from the source file 'M14_pump_rates.csv' to the GIS object named 'pump'

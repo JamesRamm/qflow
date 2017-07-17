@@ -1,0 +1,24 @@
+!*********************************************************************************************************
+! The .tgc file controls the 2D grid dimensions, cell codes, elevations and material categories
+!*********************************************************************************************************
+!_________________________________________________________________________________________________________
+! 2D DOMAIN EXTENT AND RESOLUTION COMMANDS
+Read GIS Location == gis\2d_loc_M09_5m_001_L.shp	! GIS layer defining the origin and location of the 2D domain
+Cell Size == 5.0	 							! Define the model cell size
+Grid Size (X,Y) == 850, 575  					! Define the X and Y dimensions of the 2D domain
+
+!__________________________________________________________________________________________________________
+! MODEL GRID COMMANDS
+Set Code == 0  												! Set all cells to inactive 
+Read GIS Code == gis\2d_code_M09_5m_001_R.shp  	            ! Set cell codes according to attributes specified within the GIS layer
+Read GIS Code Invert == gis\2d_code_M09_2.5m_001_R.shp  	! Deactivate area of 2D domain 'FINE'
+
+!__________________________________________________________________________________________________________
+! DEFINE BASE TOPOGRAPHY
+Set Zpts == 75						! Sets every 2D elevation zpt to 75m
+Read GRID Zpts == grid\DEM_M01.asc	! Assigns the elevation of zpts from the ASCII grid
+
+!__________________________________________________________________________________________________________
+! DEFINE  MATERIALS 
+Set Mat == 1   										! Sets the Material ID as defined within the Materials Definition file to all cells within the model domain  
+Read GIS Mat == gis\2d_mat_M01_002_R.shp			! Set material values at cell mid-sides according attributes specified within the GIS layer

@@ -1,0 +1,33 @@
+!*********************************************************************************************************
+! The .tbc file controls the location of the 2D boundary conditions, and any 1D/2D or 2D/2D boundary links
+!*********************************************************************************************************
+
+!_________________________________________________________________________________________________________
+! EXTERNAL BOUNDARIES
+! Read GIS BC == gis\2d_bc_M01_002_L.SHP			! This GIS layer is commented out / removed from the model as the boundaries are now represented in 1Doundaries are now represented in 1D
+! Read GIS SA == gis\2d_sa_M01_002_R.SHP			! This GIS layer is commented out / removed from the model and replaced with direct rainfall across the entire model extent
+
+If Scenario == DEV	| EXG							! Commands specific to the 'DEV' and 'EXG' Scenarios
+!  Read GIS SA PITS == gis\2d_sa_M07_001_R.SHP  	! This GIS layer is commented out / removed from the model and replaced with direct rainfall across the entire model extent
+	Read GIS RF == gis\2d_rf_M08_001_R.SHP			! This GIS layer applies a direct rainfall inflow
+
+Else If Scenario == FINB1 | FINB2 | FINB3			! Commands specific to the 'FINB1', 'FINB2' or 'FINB3' Scenarios
+													! No additional commands are read in for the 'EXG', 'FINB1', 'FINB2' or 'FINB3' Scenarios
+Else												! Commands specific to all other scenarios  
+    Pause == Scenario not recognised				! The command pauses the model and outputs the message 'Scenario not recognised' and is used as a means of capturing any errors
+End If 												! Indicates the end of the logic block of commands
+
+!_________________________________________________________________________________________________________
+! INTERNAL (1D/2D) BOUNDARIES
+Read GIS BC == gis\2d_bc_M02_culv_001_P.SHP		! This command reads in SX boundaries linking the 1D culverts to the 2D domain
+! Read GIS BC == gis\2d_bc_M02_culv_001_L.SHP	! This command is commented out / removed from the model as the culvert is now connected to the 1D representation of the creek channel
+
+If Scenario == EXG | FINB1 | FINB3				! Commands specific to the 'EXG', 'DEV', 'FINB1', or 'FINB3' Scenarios
+  Read GIS BC == gis\2d_bc_M04_HX_001_L.SHP		! This command reads in HX boundaries linking the 1D creek channel to the 2D domain 
+  
+Else If Scenario == DEV | FINB2  				! Commands specific to the 'DEV' or 'FINB2' Scenarios 
+  Read GIS BC == gis\2d_bc_M06_HX_001_L.SHP		! This command reads in HX boundaries linking the 1D bridge to the 2D domain
+ 
+Else											! Commands specific to all other scenarios
+    Pause == Scenario not recognised			! The command pauses the model and outputs the message 'Scenario not recognised' and is used as a means of capturing any errors
+End If 											! Indicates the end of the logic block of commands

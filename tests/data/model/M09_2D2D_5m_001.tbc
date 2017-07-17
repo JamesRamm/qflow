@@ -1,0 +1,12 @@
+!*********************************************************************************************************
+! The .tbc file controls the location of the 2D boundary conditions, and any 1D/2D or 2D/2D boundary links
+!*********************************************************************************************************
+
+!_________________________________________________________________________________________________________
+! EXTERNAL BOUNDARIES
+Read GIS BC == gis\2d_bc_M09_5m_001_L.shp			! GIS layer defining external 2D boundaries within model
+Read GIS SA == gis\2d_sa_M01_002_R.shp				! This command reads in the Eastern SA (source area) boundary
+
+!_________________________________________________________________________________________________________
+! INTERNAL (2D/2D) BOUNDARIES
+Read GIS BC == gis\2d_bc_M09_2D2D_001_L.shp			! GIS layer defining internal 2D/2D boundaries within model

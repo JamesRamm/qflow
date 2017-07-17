@@ -1,0 +1,61 @@
+!*********************************************************************************************************
+! The .tgc file controls the 2D grid dimensions, cell codes, elevations and material categories
+!*********************************************************************************************************
+!_________________________________________________________________________________________________________
+! 2D DOMAIN EXTENT AND RESOLUTION COMMANDS
+Origin == 292725, 6177615		! Bottom left corner (origin) of the 2D grid
+Orientation == 293580, 6177415	! Another point along the X-axis of the 2D grid, used to determine the orientation of the grid
+Cell Size == 5					! 2D cell size in metres
+Grid Size (X,Y) == 850, 1000	! 2D grid extent dimensions in metres
+
+!__________________________________________________________________________________________________________
+! MODEL GRID COMMANDS
+Set Code == 0												! Set all cells to inactive (ie. Code 0)
+Read GIS Code == gis\2d_code_M04_001_R.SHP  				! Set cell codes according to attributes specified within the GIS layer
+
+If Scenario == EXG | DEV | FINB1 | FINB3					! Commands specific to the 'EXG', 'DEV', 'FINB1' and 'FINB3' Scenarios
+  Read GIS Code == gis\2d_code_M04_null_creek_001_R.SHP		! Deactivates the cells where the creek channel has been modelled in 1D
+
+Else If Scenario == FINB2									! Commands specific to the 'FINB2' Bridge Option 2 Scenario			
+  Read GIS Code == gis\2d_code_M06_null_creek_001_R.SHP		! Deactivates the cells where the creek channel has been modelled in 1D
+
+Else														! Commands specific to all other scenarios  
+    Pause == Scenario not recognised						! The command pauses the model and outputs the message 'Scenario not recognised' and is used as a means of capturing any errors
+End If 														! Indicates the end of the logic block of commands
+
+!__________________________________________________________________________________________________________
+! DEFINE BASE TOPOGRAPHY
+Set Zpts == 75						! Sets every 2D elevation zpt to 75m
+Read GRID Zpts == grid\DEM_M01.asc	! Assigns the elevation of zpts from the ASCII grid
+
+!__________________________________________________________________________________________________________
+! DEFINE TOPOGRAPHY AMENDMENTS
+! Read GIS Z Shape == gis\2d_zsh_M03_Thalweg_001_L.SHP | gis\2d_zsh_M03_Thalweg_001_P.SHP				! This GIS layer is commented out / removed from the model as the creek channel has been modelled in 1D
+Read GIS Z Shape == gis\2d_zsh_M03_Rd_Crest_001_L.SHP | gis\2d_zsh_M03_Rd_Crest_001_P.SHP				! GIS layer used to define the road crest
+Read GIS Z HX Line MAX == gis\2d_bc_M04_HX_001_L.SHP | gis\2d_bc_M04_HX_001_P.SHP						! Defines the bank crest levels (1D/2D boundary cell elevations). The 'MAX' option prevents any zpt elevations from being lowered
+
+If Scenario == DEV																						! Commands specific to the 'DEV' Scenario
+  Read GIS Z Shape == gis\2d_zsh_M06_Rd_Crest_001_L.SHP													! GIS layer used to update the road crest level as part of proposed development
+  Read GIS Z Shape == gis\2d_zsh_M05_development_001_R.SHP												! GIS layer used to modify the topography representing the proposed development
+
+Else If Scenario == FINB2																				! Commands specific to the 'FINB2' Bridge Option 2 Scenario				
+  Read GIS Z HX Line MAX == gis\2d_bc_M04_HX_001_L.SHP | gis\2d_bc_M04_HX_001_P.SHP						! Defines the bank crest levels (1D/2D boundary cell elevations). The 'MAX' option prevents any zpt elevations from being lowered 
+
+Else If Scenario == FINB3																				! Commands specific to the 'FINB3' Bridge Option 3 Scenario
+  Read GIS Z Shape == gis\2d_zsh_M06_NorthRd_001_R.SHP | gis\2d_zsh_M06_NorthRd_001_P.SHP 				! GIS layer used to lower the road crest at the location of the bridge opening 
+  Read GIS Layered FC Shape == gis\2d_lfcsh_M06_bridge_001_R.SHP | gis\2d_lfcsh_M06_bridge_001_P.SHP	! Layers representing 2D bridge
+
+Else If Scenario == EXG | FINB1																			! Commands specific to the 'EXG' or 'FINB1' Scenarios
+																										! No additional commands are read in for the 'EXG' or 'FINB1' Scenarios
+Else 																									! Commands specific to all other scenarios
+    Pause == Scenario not recognised																	! The command pauses the model and outputs the message 'Scenario not recognised' and is used as a means of capturing any errors
+End If 																									! Indicates the end of the logic block of commands
+
+!__________________________________________________________________________________________________________
+! DEFINE MATERIALS  
+Set Mat == 1								! Set all cell mid-sides to a Material ID of 1 as defined within the Materials Definition file, materials.csv
+Read GIS Mat == gis\2d_mat_M01_002_R.SHP	! Set material values at cell mid-sides according attributes specified within the GIS layer 
+
+
+
+

@@ -1,0 +1,9 @@
+!*********************************************************************************************************
+! The .tbc file controls the location of the 2D boundary conditions, and any 1D/2D or 2D/2D boundary links
+!*********************************************************************************************************
+
+!_________________________________________________________________________________________________________
+! EXTERNAL BOUNDARIES
+Read GIS BC == gis\2d_bc_M01_002_L.shp	! This command reads in the Western QT (flow-time) and HQ (stage-discharge) boundaries
+Read GIS SA == gis\2d_sa_M01_002_R.shp	! This command reads in the Eastern SA (source area) boundary
+

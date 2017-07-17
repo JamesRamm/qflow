@@ -1,0 +1,7 @@
+Material ID,Manning's n,Infiltration Parameters,Land Use Hazard ID,! Description
+1,"0.03, 0.10, 0.1, 0.06","5.0, 2.0",,!Pasture
+2,0.022,"0, 2.0",,!Roads
+3,"0.03, 0.02, 0.1, 3.00","0, 2.0",,!Buildings
+4,0.03,"5.0, 2.0",,!Ponds and other water
+10,0.08,"5.0, 2.0",,!Vegetated creek
+11,"0.03, 0.10, 0.1, 0.04","5.0, 2.0",,!Maintained Grass

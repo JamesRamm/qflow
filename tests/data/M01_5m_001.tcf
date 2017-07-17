@@ -1,0 +1,5 @@
+Tutorial Model == ON ! This command is needed to tell TUFLOW that the tutorial model is being run
+GIS Format == SHP ! Specify SHP as the output format for all GIS files. This is the default setting
+SHP Projection == model/gis/projection.prj ! This command sets the GIS projection for the TUFLOW Model
+Write Empty GIS Files == model/gis/empty | SHP ! This command creates template SHP formatted GIS layers within an 'empty' folder to be used when constructing a TUFLOW model
+

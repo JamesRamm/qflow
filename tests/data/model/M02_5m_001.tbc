@@ -1,0 +1,13 @@
+!*********************************************************************************************************
+! The .tbc file controls the location of the 2D boundary conditions, and any 1D/2D or 2D/2D boundary links
+!*********************************************************************************************************
+
+!_________________________________________________________________________________________________________
+! EXTERNAL BOUNDARIES
+Read GIS BC == gis\2d_bc_M01_002_L.shp	! This command reads in the Western QT (flow-time) and HQ (stage-discharge) boundaries
+Read GIS SA == gis\2d_sa_M01_002_R.shp	! This command reads in the Eastern SA (source area) boundary
+
+!_________________________________________________________________________________________________________
+! INTERNAL (1D/2D) BOUNDARIES
+Read GIS BC == gis\2d_bc_M02_culv_001_P.shp	! This command reads in SX boundaries linking the 1D culverts to the 2D domain (points layer)
+Read GIS BC == gis\2d_bc_M02_culv_001_L.shp	! This command reads in SX boundaries linking the 1D culverts to the 2D domain (polyline layer)

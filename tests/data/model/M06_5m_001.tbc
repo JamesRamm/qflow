@@ -1,0 +1,22 @@
+!*********************************************************************************************************
+! The .tbc file controls the location of the 2D boundary conditions, and any 1D/2D or 2D/2D boundary links
+!*********************************************************************************************************
+
+!_________________________________________________________________________________________________________
+! EXTERNAL BOUNDARIES
+! Read GIS BC == gis\2d_bc_M01_002_L.SHP	! This GIS layer is commented out / removed from the model as the boundaries are now represented in 1D
+Read GIS SA == gis\2d_sa_M01_002_R.SHP		! This command reads in the Eastern SA (source area) boundary
+
+!_________________________________________________________________________________________________________
+! INTERNAL (1D/2D) BOUNDARIES
+Read GIS BC == gis\2d_bc_M02_culv_001_P.SHP		! This command reads in SX boundaries linking the 1D culverts to the 2D domain
+
+If Scenario == EXG | DEV | FINB1 | FINB3		! Commands specific to the 'EXG', 'DEV', 'FINB1', and 'FINB3' Scenarios
+  Read GIS BC == gis\2d_bc_M04_HX_001_L.SHP		! This command reads in HX boundaries linking the 1D creek channel to the 2D domain 
+  
+Else If Scenario == FINB2						! Commands specific to the 'FIN' Bridge Option 2 Scenario
+  Read GIS BC == gis\2d_bc_M06_HX_001_L.SHP		! This command reads in HX boundaries linking the 1D bridge to the 2D domain
+ 
+Else											! Commands specific to all other scenarios
+    Pause == Scenario not recognised			! The command pauses the model and outputs the message 'Scenario not recognised' and is used as a means of capturing any errors
+End If 											! Indicates the end of the logic block of commands

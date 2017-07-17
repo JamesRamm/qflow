@@ -1,0 +1,51 @@
+!*****************************************************************************************************************
+! The .ecf file defines the 1D simulation parameters and directs input from other data sources for all 1D domains
+!*****************************************************************************************************************
+
+!_________________________________________________________________________________________________________________
+! SIMULATION TIME CONTROL COMMANDS
+Timestep == 0.75											! Specifies a 1D computational timestep of 0.75 seconds. We will set the 1D timestep to be half the 2D timestep
+
+!_________________________________________________________________________________________________________________
+! OUTPUT CONTROL AND FORMAT COMMANDS
+Output Folder == ..\results\1d								! Specifies the location of the 1D output files
+Write Check Files == ..\check\1d\							! Specifies the location of the 1D check files and prefixes them with the .tcf filename
+Output Interval (s) == 180									! Writes the 1D output every 3 minutes. Note the (s) is required to indicate the value is in seconds
+
+!_________________________________________________________________________________________________________________
+! 1D NETWORK AND TABLE LINKS
+! Read GIS Network == gis\1d_nwk_M04_culverts_001_L.SHP		! This command is commented out as it is replaced by subsequent commands below
+Read GIS Network == gis\1d_nwk_M04_channels_001_L.SHP		! Reads the 1d_nwk GIS layer defining open channels within the model
+Read GIS Table Links == xs\1d_xs_M04_creek_001_L.SHP		! GIS layer that references cross-sectional data stored in separate csv files
+
+If Scenario == FINB1										! Commands specific to the 'FINB1' Bridge Option 1 Scenario
+  Read GIS Network == gis\1d_nwk_M06_culverts_001_L.SHP		! Reads the 1d_nwk GIS layer defining culverts within the model ('FINB1' Scenario)
+  Read GIS Network == gis\1d_nwk_M06_bridge_001_L.SHP		! GIS layer representing the bridge modelled in 1D
+  Read GIS Table Links == bg\1d_bg_M06_bridge_001_L.SHP		! GIS layer that references cross-sectional data and bridge losses stored in separate csv files
+
+Else If Scenario == FINB2									! Commands specific to the 'FINB2' Bridge Option 2 Scenario
+  Read GIS Network == gis\1d_nwk_M06_culverts_001_L.SHP		! Reads the 1d_nwk GIS layer defining culverts within the model ('FINB1' Scenario)
+  Read GIS Network == gis\1d_nwk_M06_bridge_001_L.SHP		! GIS layer representing the bridge modelled in 1D
+  Read GIS Network == gis\1d_nwk_M06_weir_001_L.SHP			! GIS layer representing the overtopping of the bridge modelled in 1D as a weir
+  Read GIS Table Links == bg\1d_bg_M06_bridge_001_L.SHP		! GIS layer that references cross-sectional data and bridge losses stored in separate csv files
+  Read GIS Table Links == bg\1d_bg_M06_weir_001_L.SHP		! GIS layer that references cross-sectional data of the weir stored in a separate csv file
+  
+Else If Scenario == FINB3									! Commands specific to the 'FINB3' Bridge Option 3 Scenario
+  Read GIS Network == gis\1d_nwk_M06_culverts_001_L.SHP		! Reads the 1d_nwk GIS layer defining culverts within the model ('FINB1' Scenario) 
+
+Else If Scenario == EXG | DEV								! Commands specific to the 'EXG' or 'DEV' Scenarios
+  Read GIS Network == gis\1d_nwk_M04_culverts_001_L.SHP		! Reads the 1d_nwk GIS layer defining culverts within the model  ('EXG' Scenario)
+ 
+Else														! Indicates the start of a block of commands for scenarios other than 'FINB1', 'FINB2', 'FINB3', 'EXG' or 'DEV'
+  Pause == Scenario not recognised							! The command pauses the model and outputs the message 'Scenario not recognised' and is used as a means of capturing any errors
+
+End If 														! Indicates the end of the logic block of commands
+
+!_________________________________________________________________________________________________________________
+! 1D BOUNDARY CONDITIONS
+Read GIS BC == gis\1d_bc_M04_001_P.SHP	! Reads in the 1D boundary conditions
+
+!_________________________________________________________________________________________________________________
+! 1D WATER LEVEL LINES
+Read GIS WLL == gis\1d_wll_M04_001_L.SHP			! GIS layers used to display the 1D results in 2D map output result files
+Read GIS WLL Points == gis\1d_wllp_M04_001_P.SHP	! GIS layer defining the elevation and bed resistance of the 1D channel, used to provide a better representation of velocity and flood hazard in mapped outputs

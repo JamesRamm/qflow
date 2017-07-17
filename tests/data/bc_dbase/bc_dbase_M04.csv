@@ -1,0 +1,5 @@
+Name,Source,Column 1,Column 2,Add Col 1,Mult Col 2,Add Col 2,Column 3,Column 4
+FC01,100yr2hr.csv,inflow_time_hr,inflow_FC01,,,,,
+FC02,100yr2hr.csv,inflow_time_hr,inflow_FC02,,,,,
+FC04,100yr2hr.csv,inflow_time_hr,inflow_FC04,,,,,
+DS_BC,Weir_HQ.csv,Flow,Water_Level,,,,,
