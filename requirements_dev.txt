@@ -1,3 +1,4 @@
+-r requirements.txt
 pip==8.1.2
 bumpversion==0.5.3
 wheel==0.29.0
@@ -8,4 +9,4 @@ coverage==4.1
 Sphinx==1.4.8
 cryptography==1.7
 PyYAML==3.11
--r requirements.txt
+
