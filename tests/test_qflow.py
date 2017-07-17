@@ -105,7 +105,7 @@ class TestQflowTasks(QFlowTestCase):
 
     def test_run_all(self):
         """Test end-to-end: extract model and run all"""
-        tasks.Tuflow.send_event = lambda *args, **kwargs: print(kwargs)
+        tasks.Tuflow.send_event = lambda *args, **kwargs: kwargs
         data_copy = os.path.join(self._output, 'data')
         shutil.copytree(self._data_dir, data_copy)
 
