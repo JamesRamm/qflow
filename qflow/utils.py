@@ -79,7 +79,6 @@ def extract_model(archive_path: str, name: str, directory: str):
 
     return model_directory
 
-
 class ModelFormatter(object):
     '''Validate and format a control file
 

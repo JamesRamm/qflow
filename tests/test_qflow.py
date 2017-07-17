@@ -94,6 +94,9 @@ class TestQflowTasks(QFlowTestCase):
 
     def test_run_tuflow(self):
         """Test the run tuflow task successfully mocks running"""
+        # Mock out send_Event
+        tasks.Tuflow.send_event = lambda *args, **kwargs: kwargs
+
         data_copy = os.path.join(self._output, 'data')
         shutil.copytree(self._data_dir, data_copy)
         tcf_file = os.path.join(data_copy, 'M01_5m_001.tcf')
