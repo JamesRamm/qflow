@@ -1,2 +1,2 @@
 celery>=4.0.0
--e git+https://github.com/duncan-r/SHIP.git#egg=tuflow_refactor
+-e git+https://github.com/duncan-r/SHIP.git@tuflow_refactor#egg=ship

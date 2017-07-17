@@ -11,8 +11,12 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = [
-    # TODO: put package requirements here
+requirements = (
+    'celery>=4.0.0',
+)
+
+dependency_links = [
+    '-e git+https://github.com/duncan-r/SHIP.git@tuflow_refactor#egg=ship'
 ]
 
 setup_requirements = [
@@ -34,9 +38,10 @@ setup(
     packages=find_packages(include=['qflow']),
     include_package_data=True,
     install_requires=requirements,
-    license="MIT license",
+    dependency_linkes=dependency_links,
+    license="AGPL license",
     zip_safe=False,
-    keywords='qflow',
+    keywords=('QFlow', 'Tuflow', 'Flood Modelling'),
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
