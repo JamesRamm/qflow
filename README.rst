@@ -1,10 +1,9 @@
 =====
-qflow
+QFlow
 =====
 
-
-.. image:: https://img.shields.io/pypi/v/qflow.svg
-        :target: https://pypi.python.org/pypi/qflow
+.. image:: https://codecov.io/gh/JamesRamm/qflow/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/JamesRamm/qflow
 
 .. image:: https://img.shields.io/travis/JamesRamm/qflow.svg
         :target: https://travis-ci.org/JamesRamm/qflow
