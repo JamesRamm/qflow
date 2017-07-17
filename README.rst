@@ -3,7 +3,7 @@ QFlow
 =====
 
 .. image:: https://codecov.io/gh/JamesRamm/qflow/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/JamesRamm/qflow
+        :target: https://codecov.io/gh/JamesRamm/qflow
 
 .. image:: https://img.shields.io/travis/JamesRamm/qflow.svg
         :target: https://travis-ci.org/JamesRamm/qflow
@@ -16,7 +16,7 @@ QFlow
 QFlow is a library for running Tuflow models across a distributed task queue.
 It uses Celery for the task queue and runs on Python 3.5+
 
-* Free software: AGPL license
+* License: AGPL
 
 Quick start
 -----------
