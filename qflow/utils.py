@@ -86,16 +86,24 @@ class ModelFormatter(object):
     edits the control file to setup output paths
     '''
 
-    def __init__(self, tcf_file: str, run_number: int):
+    def __init__(self, tcf_file: str):
 
         self.model = FileLoader().loadFile(tcf_file, version=2)
-        self.run_number = str(run_number).zfill(3)
         self.tcf_file = tcf_file
 
     def _create_folder(self, name):
-        path = os.path.join(
-            self.model.root, name, self.run_number
-        )
+        i = 0
+        while True:
+            path = os.path.join(
+                self.model.root,
+                name,
+                str(i).zfill(3)
+            )
+            if os.path.isdir(path):
+                i += 1
+            else:
+                break
+
         ensure_dir(path)
         return path
 

@@ -40,7 +40,7 @@ class TestQflowUtils(QFlowTestCase):
 
     def test_validation_fail(self):
         tcf_file = os.path.join(self._data_dir, 'bad_paths.tcf')
-        fmt = utils.ModelFormatter(tcf_file, 0)
+        fmt = utils.ModelFormatter(tcf_file)
         self.assertRaises(IOError, fmt.validate_model)
 
     def test_model_formatting(self):
@@ -53,7 +53,7 @@ class TestQflowUtils(QFlowTestCase):
         # We need to make a copy of the tcf file so we dont
         # overwrite the original
         tcf_file = self.dup_file(orig_tcf_file)
-        fmt = utils.ModelFormatter(tcf_file, 0)
+        fmt = utils.ModelFormatter(tcf_file)
         fmt.format_output_paths()
 
         # Check the tree
@@ -83,8 +83,7 @@ class TestQflowTasks(QFlowTestCase):
         """Test a model passes validation"""
         tcf_file = os.path.join(self._data_dir, 'M01_5m_001.tcf')
         result = tasks.validate_model(tcf_file)
-        self.assertEqual(result[0], tcf_file)
-        self.assertEqual(result[1], 0)
+        self.assertEqual(result, tcf_file)
 
     def test_fail_validate(self):
         """Test a model fails validation properly"""

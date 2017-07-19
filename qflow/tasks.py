@@ -19,11 +19,15 @@ import time
 import subprocess
 import glob
 import os
+from enum import Enum
 from celery import Task, subtask, group
 
 from qflow.celery import app
 from qflow import utils
 
+class EventTypes(Enum):
+    TUFLOW_MESSAGE = 'task-tuflow-message'
+    VALIDATION_FAIL = 'task-validation-fail'
 
 class Tuflow(Task):
 
@@ -31,23 +35,28 @@ class Tuflow(Task):
             self,
             tcf_file: str,
             tflow_exe: str,
-            run_number: int=0,
             mock: bool=False,
             runtime: int=2,
             interval: float=0.5):
         '''Run tuflow for a single control file
         '''
-        formatter = utils.ModelFormatter(tcf_file, run_number)
+        formatter = utils.ModelFormatter(tcf_file)
         try:
             formatter.validate_model()
         except IOError as error:
             self.send_event(
-                'validation-fail',
+                EventTypes.VALIDATION_FAIL.value,
                 stdout=str(error)
             )
             raise
 
         results, check, log = formatter.format_output_paths()
+        self.send_event(
+            EventTypes.TUFLOW_MESSAGE.value,
+            results_folder=results,
+            check_folder=check,
+            log_folder=log
+        )
         self.runtime = runtime
         self.interval = interval
         self._run_tuflow(tcf_file, tflow_exe, mock)
@@ -115,8 +124,8 @@ def extract_model(self, archive_path: str, model_name: str, directory: str):
 
 
 @app.task(bind=True)
-def validate_model(self, tcf_file: str, run_number: int=0):
-    formatter = utils.ModelFormatter(tcf_file, run_number)
+def validate_model(self, tcf_file: str):
+    formatter = utils.ModelFormatter(tcf_file)
     try:
         formatter.validate_model()
     except IOError as error:
@@ -125,7 +134,7 @@ def validate_model(self, tcf_file: str, run_number: int=0):
             stdout=str(error)
         )
         raise
-    return tcf_file, run_number
+    return tcf_file
 
 
 @app.task(bind=True, base=Tuflow)
