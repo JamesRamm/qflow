@@ -13,10 +13,12 @@ with open('HISTORY.rst') as history_file:
 
 requirements = (
     'celery>=4.0.0',
+    'redis==2.10.5'
 )
 
 dependency_links = [
-    '-e git+https://github.com/duncan-r/SHIP.git@tuflow_refactor#egg=ship'
+    '-e git+https://github.com/duncan-r/SHIP.git@tuflow_refactor#egg=ship',
+    '-e git+https://github.com/JamesRamm/fmdb.git#egg=fmdb'
 ]
 
 setup_requirements = [

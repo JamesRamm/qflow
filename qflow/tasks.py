@@ -15,12 +15,13 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
+import datetime
 import time
 import subprocess
 import glob
 import os
 from enum import Enum
-from celery import Task, subtask, group
+from celery import Task
 
 from qflow.celery import app
 from qflow import utils
@@ -28,6 +29,7 @@ from qflow import utils
 class EventTypes(Enum):
     TUFLOW_MESSAGE = 'task-tuflow-message'
     VALIDATION_FAIL = 'task-validation-fail'
+    FOLDERS_CREATED = 'task-folders-created'
 
 class Tuflow(Task):
 
@@ -40,27 +42,38 @@ class Tuflow(Task):
             interval: float=0.5):
         '''Run tuflow for a single control file
         '''
-        formatter = utils.ModelFormatter(tcf_file)
         try:
+            formatter = utils.ModelFormatter(tcf_file)
             formatter.validate_model()
         except IOError as error:
             self.send_event(
                 EventTypes.VALIDATION_FAIL.value,
-                stdout=str(error)
+                message=str(error)
             )
-            raise
+            return {
+                'tuflowState': str(EventTypes.VALIDATION_FAIL),
+                'data': str(error)
+            }
 
         results, check, log = formatter.format_output_paths()
         self.send_event(
-            EventTypes.TUFLOW_MESSAGE.value,
-            results_folder=results,
+            EventTypes.FOLDERS_CREATED.value,
+            result_folder=results,
             check_folder=check,
             log_folder=log
         )
         self.runtime = runtime
         self.interval = interval
         self._run_tuflow(tcf_file, tflow_exe, mock)
-        return results, check, log
+        return {
+            'tuflowState': 'SUCCESS',
+            'data': {
+                'results': results,
+                'check': check,
+                'log': log,
+                'timestamp': datetime.datetime.now()
+            }
+        }
 
     def _mock_tuflow(self):
         '''Pretends to run tuflow
@@ -72,7 +85,7 @@ class Tuflow(Task):
             time.sleep(interval)
             elapsed += 5
             self.send_event(
-                'tuflow',
+                EventTypes.TUFLOW_MESSAGE.value,
                 stdout='Dummy message, time elapsed {}s'.format(elapsed),
                 stderr='Dummy stderr')
 
@@ -130,8 +143,8 @@ def validate_model(self, tcf_file: str):
         formatter.validate_model()
     except IOError as error:
         self.send_event(
-            'validation-fail',
-            stdout=str(error)
+            EventTypes.VALIDATION_FAIL.value,
+            message=str(error)
         )
         raise
     return tcf_file

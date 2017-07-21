@@ -2,13 +2,11 @@
 """Main module."""
 import os
 from celery import Celery
+
+os.environ.setdefault('CELERY_CONFIG_MODULE', 'qflow.celeryconfig')
+
 app = Celery(
     'qflow',
-    broker=os.environ.get('QFLOW_BROKER', 'pyamqp://guest@localhost//'),
-    backend=os.environ.get('QFLOW_BACKEND', 'rpc://'),
     include=['qflow.tasks']
-
 )
-
-if __name__ == '__main__':
-    app.start()
+app.config_from_envvar('CELERY_CONFIG_MODULE')
