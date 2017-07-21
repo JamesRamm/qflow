@@ -133,7 +133,12 @@ def extract_model(self, archive_path: str, model_name: str, directory: str):
     # and not nested!
     tcf_files = glob.glob(os.path.join(model_directory, '*.tcf'))
 
-    return tcf_files
+    return {
+        'tuflowState': 'SUCCESS',
+        'data': {
+            'controlFiles': tcf_files
+        }
+    }
 
 
 @app.task(bind=True)
@@ -146,8 +151,17 @@ def validate_model(self, tcf_file: str):
             EventTypes.VALIDATION_FAIL.value,
             message=str(error)
         )
-        raise
-    return tcf_file
+        return {
+            'tuflowState': str(EventTypes.VALIDATION_FAIL),
+            'data': str(error)
+        }
+
+    return {
+        'tuflowState': 'SUCCESS',
+        'data': {
+            'controlFile': tcf_file
+        }
+    }
 
 
 @app.task(bind=True, base=Tuflow)
