@@ -76,20 +76,29 @@ class TestQflowTasks(QFlowTestCase):
 
     def test_extract(self):
         """Test extracting a model."""
-        filelist = tasks.extract_model(self._archive, 'test_model', self._output)
-        self.assertEqual(len(filelist), 6)
+        result = tasks.extract_model(self._archive, 'test_model', self._output)
+        self.assertIn('data', result)
+        self.assertIn('controlFiles', result['data'])
+        self.assertEqual(len(result['data']['controlFiles']), 6)
 
     def test_validate(self):
         """Test a model passes validation"""
         tcf_file = os.path.join(self._data_dir, 'M01_5m_001.tcf')
         result = tasks.validate_model(tcf_file)
-        self.assertEqual(result, tcf_file)
+        expected = {
+            'tuflowState': 'SUCCESS',
+            'data': {
+                'controlFile': tcf_file
+            }
+        }
+        self.assertEqual(result, expected)
 
     def test_fail_validate(self):
         """Test a model fails validation properly"""
         tcf_file = os.path.join(self._data_dir, 'bad_paths.tcf')
-        with self.assertRaises(IOError):
-            tasks.validate_model(tcf_file)
+        result = tasks.validate_model(tcf_file)
+        self.assertIn('data', result)
+
 
     def test_run_tuflow(self):
         """Test the run tuflow task successfully mocks running"""
