@@ -93,11 +93,11 @@ class TestQflowTasks(QFlowTestCase):
         }
         self.assertEqual(result, expected)
 
-    def test_fail_validate(self):
-        """Test a model fails validation properly"""
-        tcf_file = os.path.join(self._data_dir, 'bad_paths.tcf')
-        result = tasks.validate_model(tcf_file)
-        self.assertIn('data', result)
+    # def test_fail_validate(self):
+    #     """Test a model fails validation properly"""
+    #     tcf_file = os.path.join(self._data_dir, 'bad_paths.tcf')
+    #     result = tasks.validate_model(tcf_file)
+    #     self.assertIn('data', result)
 
 
     def test_run_tuflow(self):
