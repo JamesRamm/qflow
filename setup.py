@@ -40,7 +40,7 @@ setup(
     packages=find_packages(include=['qflow']),
     include_package_data=True,
     install_requires=requirements,
-    dependency_linkes=dependency_links,
+    dependency_links=dependency_links,
     license="AGPL license",
     zip_safe=False,
     keywords=('QFlow', 'Tuflow', 'Flood Modelling'),
