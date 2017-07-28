@@ -86,7 +86,7 @@ class TestQflowTasks(QFlowTestCase):
         tcf_file = os.path.join(self._data_dir, 'M01_5m_001.tcf')
         result = tasks.validate_model(tcf_file)
         expected = {
-            'tuflowState': 'SUCCESS',
+            'state': 'SUCCESS',
             'data': {
                 'controlFile': tcf_file
             }
