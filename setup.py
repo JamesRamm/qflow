@@ -17,8 +17,7 @@ requirements = (
 )
 
 dependency_links = [
-    '-e git+https://github.com/duncan-r/SHIP.git@tuflow_refactor#egg=ship',
-    '-e git+https://github.com/JamesRamm/fmdb.git#egg=fmdb'
+    'git+https://github.com/duncan-r/SHIP.git@tuflow_refactor#egg=ship'
 ]
 
 setup_requirements = [

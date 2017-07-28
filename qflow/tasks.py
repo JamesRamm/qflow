@@ -20,10 +20,10 @@ import time
 import subprocess
 import glob
 import os
+import base64
 from enum import Enum
 from celery import Task
 
-from fmdb import id_from_path
 from qflow.celery import app
 from qflow import utils
 
@@ -90,9 +90,10 @@ class Tuflow(Task):
         results, check, log = formatter.format_output_paths()
 
         # Convert all paths to url-safe id's so they can be passed as URL components
-        results = id_from_path(results)
-        check = id_from_path(check)
-        log = id_from_path(log)
+        fid = lambda path: base64.urlsafe_b64encode(path.encode('utf-8')).decode('utf-8')
+        results = fid(results)
+        check = fid(check)
+        log = fid(log)
 
         self.send_event(
             EventTypes.FOLDERS_CREATED.value,
