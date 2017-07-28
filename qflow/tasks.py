@@ -62,6 +62,10 @@ class Anuga(Task):
                 )
             time.sleep(0.5)
             retcode = proc.poll()
+        return {
+            'state': 'SUCCESS',
+            'data': {}
+        }
 
 class Tuflow(Task):
 
@@ -83,7 +87,7 @@ class Tuflow(Task):
                 message=str(error)
             )
             return {
-                'tuflowState': str(EventTypes.VALIDATION_FAIL),
+                'state': str(EventTypes.VALIDATION_FAIL),
                 'data': str(error)
             }
 
@@ -105,7 +109,7 @@ class Tuflow(Task):
         self.interval = interval
         self._run_tuflow(tcf_file, tflow_exe, mock)
         return {
-            'tuflowState': 'SUCCESS',
+            'state': 'SUCCESS',
             'data': {
                 'results': results,
                 'check': check,
@@ -173,7 +177,7 @@ def extract_model(self, archive_path: str, model_name: str, directory: str):
     tcf_files = glob.glob(os.path.join(model_directory, '*.tcf'))
 
     return {
-        'tuflowState': 'SUCCESS',
+        'state': 'SUCCESS',
         'data': {
             'controlFiles': tcf_files
         }
@@ -191,12 +195,12 @@ def validate_model(self, tcf_file: str):
             message=str(error)
         )
         return {
-            'tuflowState': str(EventTypes.VALIDATION_FAIL),
+            'state': str(EventTypes.VALIDATION_FAIL),
             'data': str(error)
         }
 
     return {
-        'tuflowState': 'SUCCESS',
+        'state': 'SUCCESS',
         'data': {
             'controlFile': tcf_file
         }
@@ -205,4 +209,9 @@ def validate_model(self, tcf_file: str):
 
 @app.task(bind=True, base=Tuflow)
 def run_tuflow(self, *args, **kwargs):
+    super(self.__class__, self).run(*args, **kwargs)
+
+
+@app.task(bind=True, base=Anuga)
+def run_anuga(self, *args, **kwargs):
     super(self.__class__, self).run(*args, **kwargs)
