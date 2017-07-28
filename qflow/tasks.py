@@ -29,8 +29,39 @@ from qflow import utils
 
 class EventTypes(Enum):
     TUFLOW_MESSAGE = 'task-tuflow-message'
+    ANUGA_MESSAGE = 'task-anuga-message'
     VALIDATION_FAIL = 'task-validation-fail'
     FOLDERS_CREATED = 'task-folders-created'
+
+class Anuga(Task):
+
+    def run(self, entry_point, env_name='anuga'):
+        '''Run anuga hydro.
+
+        The input python script is executed in a
+        conda virtual environment named `env_name`.
+        This environment should be configured to run anuga
+        '''
+        proc = utils.execute_in_conda(
+            env_name,
+            entry_point
+        )
+        # Poll the process until it has finished
+        retcode = proc.poll()
+        while retcode is None:
+            # Get any output or errors, then wait a little
+            # before polling again
+            out = proc.stdout.readline()
+            err = proc.stderr.readline()
+
+            if out or err:
+                self.send_event(
+                    EventTypes.ANUGA_MESSAGE.value,
+                    stdout=out,
+                    stderr=err
+                )
+            time.sleep(0.5)
+            retcode = proc.poll()
 
 class Tuflow(Task):
 
@@ -125,7 +156,7 @@ class Tuflow(Task):
                         stderr=err
                     )
                 time.sleep(0.5)
-                proc.poll()
+                retcode = proc.poll()
 
 
 @app.task(bind=True)

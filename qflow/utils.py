@@ -18,6 +18,8 @@
 import zipfile
 import tarfile
 import os
+import shlex
+from subprocess import Popen, PIPE
 
 from ship.utils.fileloaders.fileloader import FileLoader
 from ship.tuflow import FILEPART_TYPES as fpt
@@ -45,6 +47,13 @@ def ensure_path(path: str):
         i += 1
 
     return path
+
+def execute_in_conda(env_name, script):
+    '''Execute Python code in a conda environment, return its stdout and stderr.'''
+    command_template = '/bin/bash -c "source activate {} && python {}"'
+    command = shlex.split(command_template.format(env_name, script))
+    process = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    return process
 
 
 def extract_model(archive_path: str, name: str, directory: str):
