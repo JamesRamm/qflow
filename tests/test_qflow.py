@@ -9,7 +9,7 @@ import os
 import shutil
 from ship.tuflow import FILEPART_TYPES as fpt
 
-from qflow import tasks, utils, workflow
+from qflow import tasks, utils, workflow, checkers
 
 def _data_dir():
     # Setup commonly used paths
@@ -40,7 +40,7 @@ class TestQflowUtils(QFlowTestCase):
 
     def test_validation_fail(self):
         tcf_file = os.path.join(self._data_dir, 'bad_paths.tcf')
-        fmt = utils.ModelFormatter(tcf_file)
+        fmt = checkers.TuflowModelFormatter(tcf_file)
         self.assertRaises(IOError, fmt.validate_model)
 
     def test_model_formatting(self):
@@ -53,7 +53,7 @@ class TestQflowUtils(QFlowTestCase):
         # We need to make a copy of the tcf file so we dont
         # overwrite the original
         tcf_file = self.dup_file(orig_tcf_file)
-        fmt = utils.ModelFormatter(tcf_file)
+        fmt = checkers.TuflowModelFormatter(tcf_file)
         fmt.format_output_paths()
 
         # Check the tree

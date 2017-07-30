@@ -1,19 +1,5 @@
 '''
-    TuCluster - distributed execution of tuflow models in the cloud
-    Copyright (C) 2017  James Ramm
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+Celery tasks for running ANUGA or Tuflow
 '''
 import datetime
 import time
@@ -25,9 +11,11 @@ from enum import Enum
 from celery import Task
 
 from qflow.celery import app
-from qflow import utils
+from qflow import utils, checkers
 
 def make_fid(path):
+    '''URL-safe base64 encoding of filepaths to transmit over a http api
+    '''
     return base64.urlsafe_b64encode(path.encode('utf-8')).decode('utf-8')
 
 class EventTypes(Enum):
@@ -47,7 +35,7 @@ class Anuga(Task):
         '''
 
         # Format the script to override the data directory
-        formatter = utils.AnugaModelFormatter(entry_point)
+        formatter = checkers.AnugaModelFormatter(entry_point)
         results = formatter.format_output_paths()
 
         proc = utils.execute_in_conda(
@@ -73,7 +61,8 @@ class Anuga(Task):
         return {
             'state': 'SUCCESS',
             'data': {
-                'results': make_fid(results)
+                'results': make_fid(results),
+                'exit_code': retcode
             }
         }
 
@@ -89,7 +78,7 @@ class Tuflow(Task):
         '''Run tuflow for a single control file
         '''
         try:
-            formatter = utils.ModelFormatter(tcf_file)
+            formatter = checkers.TuflowModelFormatter(tcf_file)
             formatter.validate_model()
         except IOError as error:
             self.send_event(
@@ -195,7 +184,7 @@ def extract_model(self, archive_path: str, model_name: str, directory: str):
 
 @app.task(bind=True)
 def validate_model(self, tcf_file: str):
-    formatter = utils.ModelFormatter(tcf_file)
+    formatter = checkers.TuflowModelFormatter(tcf_file)
     try:
         formatter.validate_model()
     except IOError as error:
@@ -218,9 +207,15 @@ def validate_model(self, tcf_file: str):
 
 @app.task(bind=True, base=Tuflow)
 def run_tuflow(self, *args, **kwargs):
+    '''Task to execute Tuflow for a given control file.
+    See ``Tuflow.__init__`` for supported arguments
+    '''
     super(self.__class__, self).run(*args, **kwargs)
 
 
 @app.task(bind=True, base=Anuga)
 def run_anuga(self, *args, **kwargs):
+    '''Task to run an ANUGA python script.
+    See ``Anuga.__init__`` for supported arguments
+    '''
     super(self.__class__, self).run(*args, **kwargs)
