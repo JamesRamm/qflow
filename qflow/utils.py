@@ -170,3 +170,53 @@ class ModelFormatter(object):
             self.model.control_file_tree.write(out=fout)
 
         return out_path, check_path, log_path
+
+
+class AnugaModelFormatter(object):
+    '''Format an ANUGA script.
+    Currently all this does is override the ``datadir``
+    location.
+    '''
+    def __init__(self, script: str):
+        self._script = script
+
+    def format_output_paths(self):
+        '''Override the ``set_datadir`` method in the anuga script
+        '''
+        # Create the results folder
+        results_path = os.path.join(os.path.dirname(self._script), 'results')
+        ensure_dir(results_path)
+
+        # To set the output data directory in anuga, the user
+        # must create an instance of ``anuga.Domain`` and call the
+        # ``set_datadir`` method of this instance.
+        # Here we will search for this method call and replace it
+        with open(self._script) as fin:
+            contents = fin.readlines()
+
+        added_default = False
+        default_datadir_string = "anuga.config.default_datadir='{}'\n".format(results_path)
+        for i, line in enumerate(contents):
+            if 'set_datadir' in line:
+                instance_name = line.split('.set_datadir')[0]
+                contents[i] = "{}.set_datadir('{}')\n".format(instance_name, results_path)
+
+            # This is our fail safe - if set_datadir isnt called,
+            #  it will use the default datadir. We will override this at the
+            # top of the script
+            if 'import anuga' in line:
+                # insert the override before the next line
+                contents.insert(i+1, default_datadir_string)
+                added_default = True
+
+        # It is not _totally_ beyond the realm of possibility that anuga is *not* imported in the
+        # script. E.g. the script could just call functions in another user uploaded file.
+        # This is unlikely, but lets be extra sure.
+        if not added_default:
+            contents.insert(0, "import anuga\n{}".format(default_datadir_string))
+
+        # Overwrite the script
+        with open(self._script, 'w') as fout:
+            fout.writelines(contents)
+
+        return results_path

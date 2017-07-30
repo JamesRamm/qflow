@@ -27,6 +27,9 @@ from celery import Task
 from qflow.celery import app
 from qflow import utils
 
+def make_fid(path):
+    return base64.urlsafe_b64encode(path.encode('utf-8')).decode('utf-8')
+
 class EventTypes(Enum):
     TUFLOW_MESSAGE = 'task-tuflow-message'
     ANUGA_MESSAGE = 'task-anuga-message'
@@ -42,6 +45,11 @@ class Anuga(Task):
         conda virtual environment named `env_name`.
         This environment should be configured to run anuga
         '''
+
+        # Format the script to override the data directory
+        formatter = utils.AnugaModelFormatter(entry_point)
+        results = formatter.format_output_paths()
+
         proc = utils.execute_in_conda(
             env_name,
             entry_point
@@ -64,7 +72,9 @@ class Anuga(Task):
             retcode = proc.poll()
         return {
             'state': 'SUCCESS',
-            'data': {}
+            'data': {
+                'results': make_fid(results)
+            }
         }
 
 class Tuflow(Task):
@@ -94,10 +104,9 @@ class Tuflow(Task):
         results, check, log = formatter.format_output_paths()
 
         # Convert all paths to url-safe id's so they can be passed as URL components
-        fid = lambda path: base64.urlsafe_b64encode(path.encode('utf-8')).decode('utf-8')
-        results = fid(results)
-        check = fid(check)
-        log = fid(log)
+        results = make_fid(results)
+        check = make_fid(check)
+        log = make_fid(log)
 
         self.send_event(
             EventTypes.FOLDERS_CREATED.value,
