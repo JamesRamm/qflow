@@ -32,9 +32,12 @@ def ensure_path(path: str):
 
 def execute_in_conda(env_name, script):
     '''Execute Python code in a conda environment, return its stdout and stderr.'''
-    command_template = '/bin/bash -c "source activate {} && python {}"'
-    command = shlex.split(command_template.format(env_name, script))
-    process = Popen(command, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+
+    # We CD into the directory of the script as anuga often expects data files to be co-located
+    # etc..
+    command_template = '/bin/bash -c "cd {} && source activate {} && python {}"'
+    command = shlex.split(command_template.format(os.path.dirname(script), env_name, script))
+    process = Popen(command, stdout=PIPE, stderr=PIPE)
     return process
 
 

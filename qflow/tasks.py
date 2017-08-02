@@ -37,7 +37,6 @@ class Anuga(Task):
         # Format the script to override the data directory
         formatter = checkers.AnugaModelFormatter(entry_point)
         results = formatter.format_output_paths()
-
         proc = utils.execute_in_conda(
             env_name,
             entry_point
@@ -51,10 +50,12 @@ class Anuga(Task):
             err = proc.stderr.readline()
 
             if out or err:
+                print(out.decode('utf-8'))
+                print(err.decode('utf-8'))
                 self.send_event(
                     EventTypes.ANUGA_MESSAGE.value,
-                    stdout=out,
-                    stderr=err
+                    stdout=out.decode('utf-8'),
+                    stderr=err.decode('utf-8')
                 )
             time.sleep(0.5)
             retcode = proc.poll()
@@ -155,8 +156,8 @@ class Tuflow(Task):
                 if out or err:
                     self.send_event(
                         'tuflow',
-                        stdout=out,
-                        stderr=err
+                        stdout=out.decode('utf-8'),
+                        stderr=err.decode('utf-8')
                     )
                 time.sleep(0.5)
                 retcode = proc.poll()
@@ -210,7 +211,7 @@ def run_tuflow(self, *args, **kwargs):
     '''Task to execute Tuflow for a given control file.
     See ``Tuflow.__init__`` for supported arguments
     '''
-    super(self.__class__, self).run(*args, **kwargs)
+    return super(self.__class__, self).run(*args, **kwargs)
 
 
 @app.task(bind=True, base=Anuga)
@@ -218,4 +219,4 @@ def run_anuga(self, *args, **kwargs):
     '''Task to run an ANUGA python script.
     See ``Anuga.__init__`` for supported arguments
     '''
-    super(self.__class__, self).run(*args, **kwargs)
+    return super(self.__class__, self).run(*args, **kwargs)
