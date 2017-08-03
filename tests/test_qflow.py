@@ -77,9 +77,8 @@ class TestQflowTasks(QFlowTestCase):
     def test_extract(self):
         """Test extracting a model."""
         result = tasks.extract_model(self._archive, 'test_model', self._output)
-        self.assertIn('data', result)
-        self.assertIn('controlFiles', result['data'])
-        self.assertEqual(len(result['data']['controlFiles']), 6)
+        self.assertIn('entrypoints', result)
+        self.assertEqual(len(result['entrypoints']), 6)
 
     def test_validate(self):
         """Test a model passes validation"""
@@ -109,7 +108,8 @@ class TestQflowTasks(QFlowTestCase):
         data_copy = os.path.join(self._output, 'data')
         shutil.copytree(self._data_dir, data_copy)
         tcf_file = os.path.join(data_copy, 'M01_5m_001.tcf')
-        tasks.run_tuflow(tcf_file, 'tuflow_exe', mock=True, runtime=2, interval=0.5)
+        result = tasks.run_tuflow(tcf_file, 'tuflow_exe', mock=True, runtime=2, interval=0.5)
+        self.assertIn('results', result)
 
     def test_run_all(self):
         """Test end-to-end: extract model and run all"""

@@ -7,6 +7,7 @@ import subprocess
 import glob
 import os
 import base64
+from itertools import chain
 from enum import Enum
 from celery import Task
 
@@ -17,6 +18,17 @@ def make_fid(path):
     '''URL-safe base64 encoding of filepaths to transmit over a http api
     '''
     return base64.urlsafe_b64encode(path.encode('utf-8')).decode('utf-8')
+
+def make_process_results(retcode: int, data: dict):
+    '''Make a common 'result' dictionary for all tasks
+    '''
+    if retcode:
+        if retcode > 0:
+            data['status'] = 'FAILURE'
+        elif retcode == 0:
+            data['status'] = 'SUCCESS'
+
+    return data
 
 class EventTypes(Enum):
     TUFLOW_MESSAGE = 'task-tuflow-message'
@@ -33,7 +45,7 @@ class Anuga(Task):
         conda virtual environment named `env_name`.
         This environment should be configured to run anuga
         '''
-
+        start = time.time()
         # Format the script to override the data directory
         formatter = checkers.AnugaModelFormatter(entry_point)
         results = formatter.format_output_paths()
@@ -59,13 +71,20 @@ class Anuga(Task):
                 )
             time.sleep(0.5)
             retcode = proc.poll()
-        return {
-            'state': 'SUCCESS',
-            'data': {
-                'results': make_fid(results),
-                'exit_code': retcode
-            }
-        }
+
+        # Move the log file into the results folder
+        pth = os.path
+        oldpath = pth.join(pth.dirname(entry_point), 'anuga.log')
+        if pth.exists(oldpath):
+            newpath = pth.join(results, 'anuga.log')
+            os.rename(oldpath, newpath)
+
+        end = time.time()
+        return make_process_results(
+            retcode,
+            {'results': make_fid(results), 'runtime': end - start}
+        )
+
 
 class Tuflow(Task):
 
@@ -78,6 +97,7 @@ class Tuflow(Task):
             interval: float=0.5):
         '''Run tuflow for a single control file
         '''
+        start = time.time()
         try:
             formatter = checkers.TuflowModelFormatter(tcf_file)
             formatter.validate_model()
@@ -106,16 +126,18 @@ class Tuflow(Task):
         )
         self.runtime = runtime
         self.interval = interval
-        self._run_tuflow(tcf_file, tflow_exe, mock)
-        return {
-            'state': 'SUCCESS',
-            'data': {
+        retcode = self._run_tuflow(tcf_file, tflow_exe, mock)
+
+        end = time.time()
+        return make_process_results(
+            retcode,
+            {
                 'results': results,
                 'check': check,
                 'log': log,
-                'timestamp': datetime.datetime.now()
+                'runtime': end - start
             }
-        }
+        )
 
     def _mock_tuflow(self):
         '''Pretends to run tuflow
@@ -161,26 +183,32 @@ class Tuflow(Task):
                     )
                 time.sleep(0.5)
                 retcode = proc.poll()
+            return retcode
 
 
 @app.task(bind=True)
 def extract_model(self, archive_path: str, model_name: str, directory: str):
+    '''Extract a zip file to a new subdirectory of ``directory``, given by
+    ``model_name``
+
+    Returns:
+        dict: Containing a key ``entrypoints`` which has a list of all *.tcf
+            and *.py files found in the root directory.
+    '''
     model_directory = utils.extract_model(
         archive_path,
         model_name,
         directory
     )
-    # Find all control files in the model directory
-    # The assumption is all .tcf files are in the top level directory
-    # and not nested!
-    tcf_files = glob.glob(os.path.join(model_directory, '*.tcf'))
 
-    return {
-        'state': 'SUCCESS',
-        'data': {
-            'controlFiles': tcf_files
-        }
-    }
+    # Find all control files/anuga scripts in the model directory
+    tcf_pattern = os.path.join(model_directory, '*.tcf')
+    py_pattern = os.path.join(model_directory, '*.py')
+    entrypoints = chain.from_iterable(
+        glob.iglob(pattern) for pattern in (tcf_pattern, py_pattern)
+    )
+
+    return {'entrypoints': list(entrypoints)}
 
 
 @app.task(bind=True)
