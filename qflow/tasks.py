@@ -1,7 +1,6 @@
 '''
 Celery tasks for running ANUGA or Tuflow
 '''
-import datetime
 import time
 import subprocess
 import glob
