@@ -12,7 +12,6 @@ def run_multiple(control_file_list, tuflow_exe, **kwargs):
         tasks.run_tuflow.s(
             tcf,
             tuflow_exe,
-            run_number=i,
             **kwargs
         ) for i, tcf in enumerate(control_file_list)
     )
