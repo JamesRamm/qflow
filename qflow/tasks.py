@@ -61,8 +61,6 @@ class Anuga(Task):
             err = proc.stderr.readline()
 
             if out or err:
-                print(out.decode('utf-8'))
-                print(err.decode('utf-8'))
                 self.send_event(
                     EventTypes.ANUGA_MESSAGE.value,
                     stdout=out.decode('utf-8'),
