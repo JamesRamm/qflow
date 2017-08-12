@@ -21,6 +21,7 @@ QFlow uses Celery & Redis to manage the task queue and runs on Python 3.5+
 
 .. figure:: docs/qflow_arch.png
     :scale: 100 %
+    :align: center
     :alt: QFlow conceptual diagram
 
 
