@@ -1,3 +1,4 @@
+#!/bin/bash
 conda create -n anuga python=2
 source activate anuga
 apt-get update

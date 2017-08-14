@@ -30,10 +30,8 @@ Quick start
 
 Follow this to get started using QFlow from the source.
 
-- Install Redis (https://redis.io/).
-- ``pip install -r requirements.txt`` to install the dependencies
-- Setup a conda environment for running ANUGA: ``create_anuga_env.sh``. (Note: This requires conda; https://conda.io/miniconda.html)
-- Launch 1 or more celery workers: ``celery -A qflow worker -l info -Ofair`` (run this in the directory above the qflow package)
+- First install redis and setup conda environments for ANUGA. This can be done by running ``install.sh`` in the ``tools`` directory
+- Launch 1 or more celery workers: ``tools/run.sh``
 
 
 In order to execute an ANUGA script:
@@ -60,3 +58,10 @@ You can easily queue up multiple ANUGA or Tuflow tasks:
 
 This script will return immeadiately after adding the tasks to the queue. Your worker(s) will then process each
 task until no more are available. You can add another worker at any time and it will start picking up tasks from the queue.
+
+Run with Docker
+-----------------
+
+A docker image is provided for QFlow (openfloodmap/qflow).
+You can run with ``docker run qflow``.
+Note that this image does not run redis - use a tool such as docker-compose to ensure Redis can be accessed from the qflow container.
