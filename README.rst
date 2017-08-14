@@ -28,7 +28,11 @@ QFlow uses Celery & Redis to manage the task queue and runs on Python 3.5+
 Quick start
 -----------
 
-- Setup the message broker for celery (e.g. Redis)
+Follow this to get started using QFlow from the source.
+
+- Install Redis (https://redis.io/).
+- ``pip install -r requirements.txt`` to install the dependencies
+- Setup a conda environment for running ANUGA: ``create_anuga_env.sh``. (Note: This requires conda; https://conda.io/miniconda.html)
 - Launch 1 or more celery workers: ``celery -A qflow worker -l info -Ofair`` (run this in the directory above the qflow package)
 
 
@@ -41,4 +45,18 @@ In order to execute an ANUGA script:
         result = tasks.run_anuga.delay('/path/to/my/script.py')
 
 
-In the above snippet, ``result`` is a celery ``AsyncResult``
+In the above snippet, ``result`` is a celery ``AsyncResult``. You can check the status of the result by accessing ``result.state``.
+If the task has finished, use ``result.result`` to access the task results.
+
+You can easily queue up multiple ANUGA or Tuflow tasks:
+
+.. code-block:: python
+
+        from qflow import tasks
+
+        scripts = ['~/run1.py', '~/run2.py', '~/run3.py']
+
+        results = [tasks.run_anuga.delay(script) for script in scripts]
+
+This script will return immeadiately after adding the tasks to the queue. Your worker(s) will then process each
+task until no more are available. You can add another worker at any time and it will start picking up tasks from the queue.
