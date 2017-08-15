@@ -10,6 +10,9 @@ chmod +x miniconda.sh && ./miniconda.sh -b
 export PATH=$HOME/miniconda/bin:$PATH
 conda update --yes conda
 
+# install openmpi
+sudo apt-get install -y libopenmpi-dev openmpi-bin;
+
 # create conda environment for anuga
 ./create_anuga_env.sh
 

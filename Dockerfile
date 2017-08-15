@@ -16,6 +16,8 @@ RUN pip install -r /app/requirements_dev.txt
 RUN chmod +x /app/create_anuga_env.sh
 RUN [ "/bin/bash", "-c", "/app/create_anuga_env.sh" ]
 
+# Create a user to run celery as
+RUN adduser --disabled-password --gecos '' wwwuser
 
 # Set the working directory to /app
 WORKDIR /app

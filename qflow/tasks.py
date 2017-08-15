@@ -37,7 +37,7 @@ class EventTypes(Enum):
 
 class Anuga(Task):
 
-    def run(self, entry_point, env_name='anuga'):
+    def run(self, entry_point, env_name='anuga', email=None):
         '''Run anuga hydro.
 
         The input python script is executed in a
@@ -45,6 +45,15 @@ class Anuga(Task):
         This environment should be configured to run anuga
         '''
         start = time.time()
+
+        # Setup an emailer
+        mailer = utils.Emailer(
+            app.conf.get('smtp_host', None),
+            app.conf.get('smtp_port', None),
+            app.conf.get('smtp_user', None),
+            app.conf.get('smtp_password', None)
+        )
+
         # Format the script to override the data directory
         formatter = checkers.AnugaModelFormatter(entry_point)
         results = formatter.format_output_paths()
@@ -66,6 +75,13 @@ class Anuga(Task):
                     stdout=out.decode('utf-8'),
                     stderr=err.decode('utf-8')
                 )
+
+            if err and email:
+                message = (
+                    "Your running ANUGA task has emitted an error. "
+                    "Message:\n\t{}\nEntrypoint:\n\t{}\nTask ID:\n\t{}"
+                ).format(err, entry_point, self.id)
+                mailer.send_email(email, 'Error in ANUGA task', message)
             time.sleep(0.5)
             retcode = proc.poll()
 
@@ -77,6 +93,14 @@ class Anuga(Task):
             os.rename(oldpath, newpath)
 
         end = time.time()
+
+        # Send a success email
+        if email:
+            msg = "Your ANUGA task has completed!\nTask ID: {}\n\tEntrypoint: {}".format(
+                self.id,
+                entry_point
+            )
+            mailer.send_email(email, 'ANUGA task completed', msg)
         return make_process_results(
             retcode,
             {'results': make_fid(results), 'runtime': end - start}

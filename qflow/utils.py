@@ -1,6 +1,7 @@
 '''
 General utility functions
 '''
+import smtplib
 import zipfile
 import tarfile
 import os
@@ -72,3 +73,32 @@ def extract_model(archive_path: str, name: str, directory: str):
     os.remove(archive_path)
 
     return model_directory
+
+
+class Emailer:
+    '''Send emails via SMTP
+    '''
+    def __init__(self, host, port, user, password):
+        self._host = host
+        self._port = port
+        self._user = user
+        self._pwd = password
+
+    def send_email(self, recipient, subject, body):
+        '''Send an email via smtp
+        '''
+        recipients = recipient if type(recipient) is list else [recipient]
+
+        # Prepare actual message
+        message = "From: {}\nTo: {}\nSubject: {}\n\n{}".format(
+            self._user,
+            ", ".join(recipients),
+            subject,
+            body
+        )
+        server = smtplib.SMTP(self._host, self._port)
+        server.ehlo()
+        server.starttls()
+        server.login(self._user, self._pwd)
+        server.sendmail(self._user, recipients, message)
+        server.close()
